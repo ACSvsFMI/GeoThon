@@ -3,6 +3,7 @@ html
 	head
 		title= title
 		link(rel='stylesheet', href='/css/bootstrap.css')
+		link(rel='stylesheet', href='/css/bootstrap-responsive.min.css')
 		link(rel='stylesheet', href='/css/style.css')
 	if (typeof(user) != 'undefined')
 		body(class=user.faction)
@@ -12,17 +13,25 @@ html
 	div(class='navbar navbar-inverse navbar-fixed-top')
 		.navbar-inner
 			.container
+				a(class="btn btn-navbar", data-toggle="collapse", data-target=".nav-collapse")
+					span.icon-bar
+					span.icon-bar
+					span.icon-bar
 				div(class='nav-collapse collapse')
 					a.brand #{title}
-					ul.nav
-						if(typeof(user) != 'undefined')
-							li: a(class='id', id=user.id) #{user.displayName}
-								img(src='https://graph.facebook.com/' + user._json.username + '/picture')
-							li: a#leptons <span>#{user.leptoni}</span> leptoni <span class="label label-important"></span>
-							li#faction: <a>#{user.faction}</a>
-							li: a Your Artefacts
-							li(class='pull-right'): a Logout
-	.container.offset-top
+					.nav-collapse.collapse
+						ul.nav
+							if(typeof(user) != 'undefined')
+								li: a(class='id', id=user.id) #{user.displayName}
+									img(src='https://graph.facebook.com/' + user._json.username + '/picture')
+								li: a#leptons <span>#{user.leptoni}</span> leptoni <span class="label label-important"></span>
+								li#faction: <a>#{user.faction}</a>
+								li
+									form
+										input(type='text', placeholder='destination', id='destination')
+										input(type='submit', value='run', class='btn btn-primary', id='run')
+								li(class='pull-right'): a(href='/logout') Logout
+	.container-fluid.offset-top
 		block content
 
 		if(typeof(user) != 'undefined')
@@ -31,3 +40,5 @@ html
 
 script(src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false")
 script(data-main="js/script", src="js/require.js")
+script(src='js/jquery.js')
+script(src='js/bootstrap.min.js')

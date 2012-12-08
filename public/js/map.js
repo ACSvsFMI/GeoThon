@@ -15,6 +15,9 @@ define(function () {
 		};
 		var highlights = [];
 
+		var dirService = new google.maps.DirectionsService();
+		var dirRenderer = new google.maps.DirectionsRenderer();
+
 		var getPosition = function () {
 			navigator.geolocation.watchPosition(function(pos){
 				var lat = pos.coords.latitude;
@@ -223,6 +226,51 @@ define(function () {
 		
 		};
 
+		function showDirections(dirResult, dirStatus) {
+			if (dirStatus != google.maps.DirectionsStatus.OK) {
+				alert('Directions failed: ' + dirStatus);
+				return;
+			}
+
+			var lat;
+			var lng;
+
+			path = dirResult.routes[0].overview_path;
+			for (var i = 0; i < path.length; i++) {
+				lat = path[i].$a;
+				lng = path[i].ab;
+				var marker = new google.maps.Marker({
+					position: new google.maps.LatLng(lat, lng),
+					map: map,
+					title:'Money!',
+					icon: 'img/coin.png'
+				});
+				coinsMarker.push(marker);
+				coins.push({
+					pos: {
+						lat: lat,
+						lng: lng
+					},
+					radius: 5
+				});
+			}
+		
+		}
+
+		function getDirections(destination) {
+			localStorage.setItem('destination', destination);
+			var toStr = destination;
+			var latLng = new google.maps.LatLng(position.lat, position.lng);
+			var dirRequest = {
+				origin: latLng,
+				destination: toStr,
+				travelMode: google.maps.DirectionsTravelMode.WALKING,
+				unitSystem: google.maps.DirectionsUnitSystem.METRIC,
+				provideRouteAlternatives: false
+			};
+			dirService.route(dirRequest, showDirections);
+		}
+
 		var generateCoins = function (lat, lng) {
 			
 			var max = parseInt(localStorage.getItem('coins'));
@@ -282,7 +330,8 @@ define(function () {
 
 		return {
 			getPosition : getPosition,
-			setMapOrigin: setMapOrigin
+			setMapOrigin: setMapOrigin,
+			getDirections: getDirections
 		};
 	};
 	return map();

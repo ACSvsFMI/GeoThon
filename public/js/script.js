@@ -12,4 +12,9 @@ require(['map', 'user'], function(map, user){
 		user.setFaction();
 	else
 		console.log('noap');
+	document.querySelector('form').addEventListener('submit', function(e){
+		var destination = document.querySelector('#destination').value;
+		map.getDirections(destination);
+		e.preventDefault();
+	}, false);
 });

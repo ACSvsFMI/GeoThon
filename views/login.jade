@@ -1,5 +1,27 @@
 extends layout
 
 block content
-	h1 you need to login
-	h1: a(href='/auth/facebook') facebook login
+	.container-fluid
+		h1 Welcome to GeoThon
+		p Argos vs Naxos
+			Geothon este un joc pentru mobil care iti permite sa aduni leptoni(banuti) de pe o ruta stabilita de utilizator. Leptonii vor fi folositi pentru a ajuta tribul din care utilizatorul face parte(Argos sau Naxos) sa puna stapanire pe artefactele care se afla in locatii-cheie de pe harta. Un utilizator poate "cumpara" un artefact doar atunci cand se afla in apropierea acestuia si daca are fondurile necesare. Artefactele vor avea la inceput un pret pre-stabilit, iar dupa fiecare schimbare de apartenenta pretul va creste.
+		h2 Who will you choose ?
+		h4: a(href='/auth/facebook') To play you need to login with facebook
+		table
+			tr
+				td
+					h3 Argos
+				td
+					h3 Naxos
+			tr
+				td
+					img(src='img/argos.png')
+				td
+					img(src='img/naxos.png')
+		h2 Argos
+		p The Argos tribe comes from a long generation of warriors. They have to prove their abilities in the fight for territory against the mighty Naxos tribe
+		
+		h2 Naxos
+		p The Naxos have a long history of conquering and they are currently on a quest to dominate every artifact on the map. They could only be stopped by the powerful Argos Tribe, in an epic fight for territory.  
+
+		h4: a(href='/auth/facebook') To play you need to login with facebook

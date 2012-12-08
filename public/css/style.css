@@ -112,6 +112,9 @@ table.factions tr:nth-child(2) td:first-child img:hover {
 table.factions tr:nth-child(2) td:last-child img:hover {
   -webkit-transform: rotateX(-360deg);
 }
+.pull-right {
+  float: right;
+}
 .artefacts {
   display: none;
 }
