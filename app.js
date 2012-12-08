@@ -6,7 +6,9 @@ var express = require('express')
   , util = require('util')
   , FacebookStrategy = require('passport-facebook').Strategy
   , mongoose = require('mongoose')
-  , db = mongoose.connect('mongodb://localhost/geothon');
+  , db = mongoose.connect('mongodb://localhost/geothon')
+  , async = require('async')
+  , schema = require('./schema.js');
 
 var FACEBOOK_APP_ID = "283596785077054"
 var FACEBOOK_APP_SECRET = "34dd4e09693b2a9ea6cecb3b30bc8f82";
@@ -69,29 +71,50 @@ app.get('/', function(req, res){
 	if(!req.user)
 		res.render('login', { title: 'GeoThon' });	
 	else {
-		var schema = mongoose.Schema({
-			name: String,
-			facultate: { type: String, default: 'not set' },
-			munca: { type: String, default: 'not set' },
-			fbid: { type: String, default: 'not set' },
-			leptoni: { type: Number, default: 10 },
-			artefacte: Array,
-			bio: { type: String, default: 'not set' },
-			factiune: {type: String, default: 'not set'}
-		});
-
-		var User = db.model('User', schema);
-		User.findOne({fbid: req.user.id}, function(err, doc){
+	
+		// .find({"created_on": {"$gte": start, "$lt": end}})
+		var User = db.model('User', schema.user);
+		User.findOne({fbid: req.user.id}, function(err, docs){
 			if(err) {
 				console.log(err);
-				res.end();
 			} else {
-				req.user.faction = doc.factiune;
-				res.render('index', { user: req.user, title: 'GeoThon' });
+				req.user.faction = docs.factiune;
+				req.user.leptoni = docs.leptoni;
+				var Artefacts = db.model('Artefacts', schema.artefact);
+				Artefacts.find({}, function(err, docs){
+					if(err) {
+						console.log(err);
+					} else {
+						res.render('index', {user : req.user, title: 'GeoThon', artefacts: JSON.stringify(docs)});
+					}
+				});
 			}
 		});
+
 	}
 });
+
+function callback (err, data) {
+	if(err) {
+		console.log(err);
+	} else {
+		console.log('got results');
+	}
+}
+
+function getArtefacts (callback) {
+	var Artefacts = db.model('Artefacts', schema.artefact);
+	Artefacts.find({}, function(err, docs){
+		callback(err, docs);
+	});
+}
+
+function getUser (id, callback) {
+	var User = db.model('User', schema.user);
+	User.findOne({fbid: id}, function(err, docs){
+		callback(err, docs);
+	});
+}
 
 app.get('/account', ensureAuthenticated, function(req, res){
   res.render('account', { user: req.user, title: 'GeoThon' });
@@ -127,19 +150,19 @@ app.get('/add', function(req, res){
 	read = require('fs').createReadStream;
 	stream = read('/opt/apps/rpg/server/artifacts.txt');
 
-	
+
 	var schema = mongoose.Schema({
 		name: String,
-		facultate: { type: String, default: 'not set' },
-		munca: { type: String, default: 'not set' },
-		fbid: { type: String, default: 'not set' },
-		leptoni: { type: Number, default: 10 },
-		artefacte: Array,
-		bio: { type: String, default: 'not set' },
-		factiune: {type: String, default: 'not set'}
+		descriere: { type: String, default: 'not set' },
+		lat: Number,
+		lng: Number,
+		pret: { type: Number, default: 10 },
+		owner: String,
+		bids: [],
+		radius: Number
 	});
 
-	var User = db.model('User', schema);
+	var Artefacts = db.model('Artefacts', schema);
 
 	var content = '';
 	stream.on('data', function(data){
@@ -150,10 +173,26 @@ app.get('/add', function(req, res){
 	});
 	stream.on('end', function(){
 		console.log(content);
+
 		var json = JSON.parse(content);
 
 		json.forEach(function(a){
+			console.log(a);
+			var artefact = new Artefacts({
+				name: a.name,
+				lat: a.lat,
+				lng: a.lng,
+				pret: 1000,
+				radius: 100
 
+			});
+			artefact.save(function(err){
+				if(err) {
+					console.log(err);
+				} else {
+					console.log('inserted');
+				}
+			});
 		});
 
 		res.end(content);
@@ -216,6 +255,48 @@ app.get('/auth/facebook/callback',
 	});
   });
 
+app.get('/bid/:artefact/:user/:sum/:name', function(req, res){
+
+	var artefact = req.params.artefact;
+	var id = req.params.user;
+	var sum = req.params.sum;
+	var name = req.params.name;
+
+	var Artefacts = db.model('Artefacts', schema.artefact);
+	Artefacts.findOne({name: artefact}, function(err, doc){
+		if(err) {
+			console.log(err);
+		} else {
+			var found = 0;
+			doc.bids.forEach(function(bid, idx){
+				if(bid.id == id) {
+					console.log('bid found');
+					console.log(doc.bids[idx]);
+					doc.bids[idx].sum = parseInt(doc.bids[idx].sum) + parseInt(sum);
+					found = 1;
+					console.log(doc.bids[idx]);
+				}
+			});
+			if(!found)
+				doc.bids.push({
+					id: id,
+					sum: sum,
+					name: name
+				});
+
+			Artefacts.findOneAndUpdate({name: artefact}, {bids: doc.bids}, function(err){
+				if(err) {
+					console.log(err);
+				} else {
+					console.log('bid saved');
+					res.end('bid saved');
+				}
+			});
+		}
+	});
+
+});
+
 app.get('/logout', function(req, res){
   req.logout();
   res.redirect('/');
@@ -250,4 +331,4 @@ app.listen(3000);
 function ensureAuthenticated(req, res, next) {
   if (req.isAuthenticated()) { return next(); }
   res.redirect('/login')
-}
+};

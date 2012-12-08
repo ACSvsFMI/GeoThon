@@ -1,4 +1,4 @@
-define(function(){
+define(function () {
 	var map = function () {
 
 		var infoWindow = new google.maps.InfoWindow();
@@ -8,7 +8,10 @@ define(function(){
 		var position = {
 			lat: 0,
 			lng: 0,
-			me: new google.maps.Marker()
+			me: new google.maps.Marker(),
+			id: 0,
+			sum: 0,
+			name: ''
 		};
 		var highlights = [];
 
@@ -25,6 +28,12 @@ define(function(){
 					}, 1000);
 					position.lat = lat;
 					position.lng = lng;
+					position.id = document.querySelector('.id').id;
+					position.name = document.querySelector('.id').innerHTML;
+
+					setTimeout(function(){
+						setArtefacts();
+					}, 1000);
 				} else {
 					position.lat = lat;
 					position.lng = lng;
@@ -37,7 +46,7 @@ define(function(){
 		};
 		var setMapOrigin = function (lat, lng) {
 			var mapOptions = {
-				zoom: 20,
+				zoom: 18,
 				center: new google.maps.LatLng(lat, lng),
 				mapTypeId: google.maps.MapTypeId.ROADMAP
 			};
@@ -45,45 +54,134 @@ define(function(){
 
 		};
 
-		function highlightClosestBounty() {
-			var i;
-			for (i = 0; i < highlights.length; i++) {
-				highlights[i].setMap(null);
+		var setArtefacts = function () {
+			var artefacts = JSON.parse(document.querySelector('.artefacts').innerHTML);
+			for (var i = 0; i < artefacts.length; i++) {
+				
+				var pos = new google.maps.LatLng(artefacts[i].lat, artefacts[i].lng);
+
+				var marker = new google.maps.Marker({
+					position: pos,
+					map: map,
+					title: artefacts[i].name,
+					icon: 'img/artifact.png'
+				});
+				
+				(function(artf, name, marker){
+					
+					var content = '<h2>'+name+'</h2>' + '<h4>'+ artf.pret +' leptons</h4>';
+					content += '<a href="#" id="'+ name +'" class="conquer">Conquer</a>';
+
+					artf.bids.forEach(function(b){
+						console.log(b);
+						content += '<p>' +b.name+ ' ('+b.sum+' / '+((b.sum/artf.pret)*100)+'%)</p>';
+					});
+
+					if(!artf.bids.length)
+						content += '<h4>No attempts to conquer this artefact</h4>';
+
+					google.maps.event.addListener(marker, 'click', function(event){
+						infoWindow.setOptions({
+							position: new google.maps.LatLng(artf.lat, artf.lng),
+							title: 'Infowindow',
+							content: content
+						});
+							
+						google.maps.event.addListener(infoWindow, 'domready', function() {
+							var c = document.querySelector('.conquer');
+							c.addEventListener('click', function(){
+								console.log(this.id, position.id, position.sum);
+								var xhr = new XMLHttpRequest();
+								xhr.open('GET', '/bid/' + this.id + '/' + position.id + '/' + position.sum + '/' + position.name, true);
+								xhr.onload = function(e) {
+									if (this.status == 200) {
+										console.log(this.responseText);
+										setSum(0);
+									}
+								};
+								xhr.send();
+							}, false);
+						});
+						
+						infoWindow.open(map, marker);
+
+					});
+				})(artefacts[i], artefacts[i].name, marker);
+
+				var zone = new google.maps.Circle({
+					map: map,
+					center: pos,
+					radius: 100,
+					strokeColor: 'black',
+					strokeOpacity: 0.8,
+					strokeWeight: 2,
+					fillColor: 'green',
+					fillOpacity: 0.4
+				});
 			}
+		};
+
+		var setSum = function (sum) {
+			var leptons = document.querySelector('#leptons');
+			var span = leptons.querySelectorAll('span')[0];
+			var badge = leptons.querySelectorAll('span')[1];
+			span.innerText = sum;
+			badge.innerHTML = 0;
+		};
+
+		function highlightClosestBounty() {
+			// var i;
+			// // for (i = 0; i < highlights.length; i++) {
+			// // 	highlights[i].setMap(null);
+			// // }
+			var leptons = document.querySelector('#leptons');
+			var span = leptons.querySelectorAll('span')[0];
+			var badge = leptons.querySelectorAll('span')[1];
 
 			for (i = 0; i < coins.length; i++) {
+
 				var dist = norm(position, coins[i].pos);
 				
 				if (dist < 1.5*coins[i].radius) {
-					var c = new google.maps.Circle({
-						map: map,
-						center: new google.maps.LatLng(coins[i].pos.lat, coins[i].pos.lng),
-						radius: coins[i].radius,
-						strokeColor: 'black',
-						strokeOpacity: 0.2,
-						strokeWeight: 1,
-						fillColor: 'green',
-						fillOpacity: 0.1
-					});
-					highlights.push(c);
+					var html = parseInt(badge.innerHTML) || 0;
+					badge.innerHTML = '+' + (html+5); 
+					coinsMarker[i].setMap(null);
+					var sum = parseInt(span.innerHTML)+5;
+					span.innerHTML = sum;
+					position.sum = sum;
+
+					// var c = new google.maps.Circle({
+					// 	map: map,
+					// 	center: new google.maps.LatLng(coins[i].pos.lat, coins[i].pos.lng),
+					// 	radius: coins[i].radius,
+					// 	strokeColor: 'black',
+					// 	strokeOpacity: 0.2,
+					// 	strokeWeight: 1,
+					// 	fillColor: 'green',
+					// 	fillOpacity: 0.1
+					// });
 				}
-
-				var dist = norm(position, coins[i].pos);
-				if (dist < 1.5*coins[i].radius)
-					(function(marker, pos){
-						google.maps.event.addListener(marker, 'click', function(event){
-							infoWindow.setOptions({
-								position: new google.maps.LatLng(pos.lat, pos.lng),
-								title: 'Infowindow',
-								content: '<h2><a href="#">Collect</a></h2>'
-							});
-							var dist = norm(position, coins[coins.length-1].pos);
-							console.log(dist);
-							infoWindow.open(map, marker);
-						});
-					})(coinsMarker[i], coins[i].pos);
-
 			}
+
+			// 	// 	highlights.push(c);
+			// 	// }
+
+			// 	// var dist = norm(position, coins[i].pos);
+			// 	// if (dist < 1.5*coins[i].radius)
+			// 	// 	(function(marker, pos){
+			// 	// 		google.maps.event.addListener(marker, 'click', function(event){
+			// 	// 			infoWindow.setOptions({
+			// 	// 				position: new google.maps.LatLng(pos.lat, pos.lng),
+			// 	// 				title: 'Infowindow',
+			// 	// 				content: '<h2><a href="#">Collect</a></h2>'
+			// 	// 			});
+			// 	// 			var dist = norm(position, coins[coins.length-1].pos);
+			// 	// 			console.log(dist);
+			// 	// 			infoWindow.open(map, marker);
+			// 	// 		});
+			// 	// 	})(coinsMarker[i], coins[i].pos);
+
+			// }
 		}
 
 		function norm(point1, point2) {

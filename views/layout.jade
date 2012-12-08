@@ -4,24 +4,30 @@ html
 		title= title
 		link(rel='stylesheet', href='/css/bootstrap.css')
 		link(rel='stylesheet', href='/css/style.css')
-	body
-		div(class='navbar navbar-inverse navbar-fixed-top')
-			.navbar-inner
-				.container
-					div(class='nav-collapse collapse')
-						a.brand #{title}
-						ul.nav
-							if(typeof(user) != 'undefined')
-								li: a(class='id', id=user.id) #{user.displayName}
-								li: a#faction #{user.faction}
-								li: a Your Artefacts
-								li(class='pull-right'): a Logout
-		.container.offset-top
-			block content
+	if (typeof(user) != 'undefined')
+		body(class=user.faction)
+	else
+		body
+	
+	div(class='navbar navbar-inverse navbar-fixed-top')
+		.navbar-inner
+			.container
+				div(class='nav-collapse collapse')
+					a.brand #{title}
+					ul.nav
+						if(typeof(user) != 'undefined')
+							li: a(class='id', id=user.id) #{user.displayName}
+								img(src='https://graph.facebook.com/' + user._json.username + '/picture')
+							li: a#leptons <span>#{user.leptoni}</span> leptoni <span class="label label-important"></span>
+							li#faction: <a>#{user.faction}</a>
+							li: a Your Artefacts
+							li(class='pull-right'): a Logout
+	.container.offset-top
+		block content
 
-			if(typeof(user) != 'undefined')
-				if (user.faction == 'not set')
-					include select-faction
+		if(typeof(user) != 'undefined')
+			if (user.faction == 'not set')
+				include select-faction
 
-	script(src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false")
-	script(data-main="js/script", src="js/require.js")
+script(src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false")
+script(data-main="js/script", src="js/require.js")

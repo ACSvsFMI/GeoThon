@@ -1,12 +1,17 @@
 extends layout
 
 block content
+	if(typeof(user) != 'undefined')
+		div(class=user.faction, id='logo')
+	else
+		div(id='logo')
 	.alert.alert-info
-		p Welcome to #{title} #{user.displayName} 
-			img(src='https://graph.facebook.com/' + user._json.username + '/picture')
+		p Welcome to #{title}, #{user.displayName} 
 		ul
 			li You are that little spartan on the map
 			li Better start gaining some points to help your army
 
 	.map_container
 		#map_canvas
+
+	.artefacts= artefacts

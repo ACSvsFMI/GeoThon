@@ -8,6 +8,8 @@ require.config({
 require(['map', 'user'], function(map, user){
 	map.getPosition();
 	var faction = document.querySelector('#faction');
-	if(faction && faction.innerHTML === 'not set')
+	if(faction && faction.innerText.trim() === 'not set')
 		user.setFaction();
+	else
+		console.log('noap');
 });

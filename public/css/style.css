@@ -1,3 +1,9 @@
+body.argos {
+  background: url("/img/argos-noise.png");
+}
+body.naxos {
+  background: url("/img/naxos-noise.png");
+}
 .offset-top {
   margin-top: 50px;
 }
@@ -9,22 +15,89 @@
   display: block;
   width: 100%;
   height: 100%;
+  background: #fff;
+  padding: 0.2em;
+  border-radius: 3px;
+}
+#logo.argos {
+  width: 128px;
+  height: 128px;
+  background: url("/img/argos.png");
+  float: left;
+  margin: 10px;
+}
+#logo.naxos {
+  width: 128px;
+  height: 128px;
+  background: url("/img/naxos.png");
+  float: left;
+  margin: 10px;
+}
+.alert {
+  float: right;
+  margin: 15px 0;
+  padding: 15px;
+  width: 78%;
+}
+.alert.alert-info {
+  color: #000;
+  background: #ccc;
+  border-color: #333;
+  border-radius: 10px;
+}
+.brand {
+  width: 138px;
+  cursor: pointer;
+  -webkit-user-select: none;
+}
+li {
+  cursor: pointer;
+  -webkit-user-select: none;
 }
 li img {
-  width: 20px;
-  margin: 0.2em;
-  border-radius: 3px;
-  background: #fff;
-  padding: 0.1em;
+  height: 37px;
+  margin-top: -8px;
+  margin-right: 10px;
+  border-radius: 5px;
+  float: left;
+}
+#map_container {
+  border-radius: 15px;
 }
 .nav li:nth-child(2):first-letter {
   text-transform: uppercase;
+}
+.argos {
+  background: #f00;
+  color: #000;
+}
+.naxos {
+  background: #ff0;
+  color: #000;
+}
+.modal {
+  border-radius: 10px;
+}
+.modal-header {
+  border-radius: 10px 10px 0 0;
+  background: whiteSmoke;
+  border-bottom: 1px solid #ccc;
+}
+td {
+  padding: 10px;
+}
+.description {
+  padding: 15px;
+  height: 45px;
 }
 table.factions {
   width: 100%;
 }
 table.factions td {
   text-align: center;
+}
+table.factions td a {
+  display: inline-block;
 }
 table.factions tr:first-child {
   font-size: 2em;
@@ -38,4 +111,7 @@ table.factions tr:nth-child(2) td:first-child img:hover {
 }
 table.factions tr:nth-child(2) td:last-child img:hover {
   -webkit-transform: rotateX(-360deg);
+}
+.artefacts {
+  display: none;
 }
