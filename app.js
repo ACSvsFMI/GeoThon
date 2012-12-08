@@ -297,6 +297,19 @@ app.get('/bid/:artefact/:user/:sum/:name', function(req, res){
 
 });
 
+app.get('/updatesum/:sum/:id', function(req, res){
+
+	var User = db.model('User', schema.user);
+	User.findOneAndUpdate({fbid: req.params.id}, {leptoni: parseInt(req.params.sum)}, function(err){
+		if(err) {
+			console.log(err);
+		} else {
+			console.log('sum updated');
+		}
+	});
+
+});
+
 app.get('/logout', function(req, res){
   req.logout();
   res.redirect('/');

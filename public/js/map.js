@@ -149,17 +149,17 @@ define(function () {
 					var sum = parseInt(span.innerHTML)+5;
 					span.innerHTML = sum;
 					position.sum = sum;
-
-					// var c = new google.maps.Circle({
-					// 	map: map,
-					// 	center: new google.maps.LatLng(coins[i].pos.lat, coins[i].pos.lng),
-					// 	radius: coins[i].radius,
-					// 	strokeColor: 'black',
-					// 	strokeOpacity: 0.2,
-					// 	strokeWeight: 1,
-					// 	fillColor: 'green',
-					// 	fillOpacity: 0.1
-					// });
+					var cn = parseInt(localStorage.getItem('coins'));
+					cn--;
+					localStorage.setItem('coins', cn);
+					var xhr = new XMLHttpRequest();
+					xhr.open('GET', '/updatesum/' + sum + '/' + position.id, true);
+					xhr.onload = function(e) {
+					if (this.status == 200) {
+						console.log(this.responseText);
+						}
+					};
+					xhr.send();
 				}
 			}
 
@@ -224,7 +224,10 @@ define(function () {
 		};
 
 		var generateCoins = function (lat, lng) {
-			for(var i = 0; i < 10; ++i) {
+			
+			var max = parseInt(localStorage.getItem('coins'));
+			console.log(max);
+			for(var i = 0; i < max; ++i) {
 				lat = randomCoord(lat);
 				lng = randomCoord(lng);
 				var pos = new google.maps.LatLng(lat, lng);
@@ -257,6 +260,14 @@ define(function () {
 						});
 					})(marker);
 			}
+			if((Date.now() - parseInt(localStorage.getItem('time')))/1000 > 3600) {
+				localStorage.setItem('time', Date.now());
+				localStorage.setItem('coins', 10);
+			}
+			if(!localStorage.getItem('coins'))
+				localStorage.setItem('coins', 10);
+			if(!localStorage.getItem('time'))
+				localStorage.setItem('time', 10);
 		};
 
 		var randomCoord = function (nr) {
