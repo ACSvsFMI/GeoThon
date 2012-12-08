@@ -1,0 +1,41 @@
+.offset-top {
+  margin-top: 50px;
+}
+.map_container {
+  width: 100%;
+  height: 400px;
+}
+#map_canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+li img {
+  width: 20px;
+  margin: 0.2em;
+  border-radius: 3px;
+  background: #fff;
+  padding: 0.1em;
+}
+.nav li:nth-child(2):first-letter {
+  text-transform: uppercase;
+}
+table.factions {
+  width: 100%;
+}
+table.factions td {
+  text-align: center;
+}
+table.factions tr:first-child {
+  font-size: 2em;
+  font-weight: bold;
+}
+table.factions tr:nth-child(2) img {
+  -webkit-transition-duration: 1s;
+}
+table.factions tr:nth-child(2) td:first-child img:hover {
+  -webkit-transform: rotateY(360deg);
+}
+table.factions tr:nth-child(2) td:last-child img:hover {
+  -webkit-transform: rotateX(-360deg);
+}
