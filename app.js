@@ -262,6 +262,8 @@ app.get('/bid/:artefact/:user/:sum/:name', function(req, res){
 	var sum = req.params.sum;
 	var name = req.params.name;
 
+	console.log(artefact, id, sum, name);
+
 	var Artefacts = db.model('Artefacts', schema.artefact);
 	Artefacts.findOne({name: artefact}, function(err, doc){
 		if(err) {

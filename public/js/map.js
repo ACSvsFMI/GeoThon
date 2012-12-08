@@ -32,8 +32,8 @@ define(function () {
 					position.lat = lat;
 					position.lng = lng;
 					position.id = document.querySelector('.id').id;
-					position.name = document.querySelector('.id').innerHTML;
-
+					position.name = document.querySelector('.id').innerText;
+					position.sum = document.querySelector('#leptons span').innerText;
 					setTimeout(function(){
 						setArtefacts();
 					}, 1000);
@@ -130,6 +130,16 @@ define(function () {
 			var badge = leptons.querySelectorAll('span')[1];
 			span.innerText = sum;
 			badge.innerHTML = 0;
+
+			var xhr = new XMLHttpRequest();
+			xhr.open('GET', '/updatesum/' + sum + '/' + position.id, true);
+			xhr.onload = function(e) {
+			if (this.status == 200) {
+				console.log(this.responseText);
+				}
+			};
+			xhr.send();
+
 		};
 
 		function highlightClosestBounty() {
